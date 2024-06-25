@@ -75,7 +75,7 @@ class AuthorParser:
     def setup_webdriver(self):
         """Settings for a selenium web driver
         Changes a self.driver attribute
-        Настроки для веб драйвера selenium 
+        Настройки для веб драйвера selenium
         """
         
 
@@ -262,7 +262,7 @@ class AuthorParser:
                 wr.writerow(saving_publication)
 
     def parse_publications(self):
-        """ Get trough the html file and save information from it"""
+        """ Get through the html file and save information from it"""
 
         print("Поиск публикаций по автору: ", self.author_id)
 
