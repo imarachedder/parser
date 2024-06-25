@@ -57,6 +57,8 @@ for publication in common_publications:
 Также для корректной работы Вам подребуется установить некоторые библиотеки. Для этого можно просто указать путь до requirements.txt в консоли и ввести команду.
 
 ```bash
+$ cd path/to/project
+$ python.exe -m venv venv
 $ pip install -r /path/to/requirements.txt
 ```
 Чтобы библиотека selenium могла имитировать работу браузера необходимо иметь предустановленным браузер [Firefox](https://www.mozilla.org/en-US/firefox/new/), а также [gekodriver.exe](https://github.com/mozilla/geckodriver/releases), затем указать в файле [config.py](elibrary_parser/config.py) путь до gekodriver на Вашем компьютере.

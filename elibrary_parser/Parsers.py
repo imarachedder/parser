@@ -18,8 +18,10 @@ from elibrary_parser.types import Publication
 
 class AuthorParser:
     """Class for loading and processing publications by eLibrary authors
+    Класс для загрузки и обработки публикация с интернет ресурса eLibrary по авторам
 
      Attributes
+     Атрибуты
      -----------
      driver: WebDriver
         Firefox browser driver
@@ -31,20 +33,30 @@ class AuthorParser:
 
      author_id: str
         elibrary identificator
+        айди автора
 
      data_path: Path
         a path where all data stored
+        путь куда загружаются все данные
 
      date_to, date_from: int
         dates (including extremities) within which search will be processed
+        период год по которым необходимо произвести парсинг
      """
-    USER_AGENTS = (
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:85.0) Gecko/20100101 Firefox/85.0',
-        'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML,like Gecko) Iron/28.0.1550.1 Chrome/28.0.1550.1',
-        'Opera/9.80 (Windows NT 6.1; WOW64) Presto/2.12.388 Version/12.16',
-    )
-    DRIVER_PATH = config.DRIVER_PATH
+    # USER_AGENTS = (
+    #     'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:85.0) Gecko/20100101 Firefox/85.0',
+    #     'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML,like Gecko) Iron/28.0.1550.1 Chrome/28.0.1550.1',
+    #     'Opera/9.80 (Windows NT 6.1; WOW64) Presto/2.12.388 Version/12.16',
+    # )
+    # DRIVER_PATH = config.DRIVER_PATH
 
+    USER_AGENTS = []
+    with open(r'C:\Users\admin\Desktop\Parser\user_agent.txt', 'r', encoding='UTF-8') as ua:
+        for line in ua:
+            line = line.strip()
+            USER_AGENTS.append(line)
+
+    DRIVER_PATH = config.DRIVER_PATH
     def __init__(self, author_id, data_path, date_to, date_from):
 
         self.author_id = author_id
@@ -62,7 +74,10 @@ class AuthorParser:
 
     def setup_webdriver(self):
         """Settings for a selenium web driver
-        Changes a self.driver attribute"""
+        Changes a self.driver attribute
+        Настроки для веб драйвера selenium 
+        """
+        
 
         new_useragent = random.choice(self.USER_AGENTS)
 
@@ -74,7 +89,9 @@ class AuthorParser:
         self.driver = webdriver.Firefox(profile, executable_path=self.DRIVER_PATH, options=options)
 
     def create_files_dir(self):
-        """Creates directory for the web-pages of an specific author"""
+        """Creates directory for the web-pages of an specific author
+        Созданные директори для для страничек с айди автора
+        """
         raw_data_dir = self.data_path / "raw"
         raw_data_dir.mkdir(exist_ok=True)
 
@@ -83,19 +100,21 @@ class AuthorParser:
 
         self.files_dir = self.data_path / "raw" / self.author_id
 
-        print("Author's directory:", self.files_dir.absolute())
+        print("Директория автора: ", self.files_dir.absolute())
 
         self.files_dir.mkdir(exist_ok=True)
 
     def find_publications(self):
-        """Gets the web-page with chosen years"""
+        """Gets the web-page with chosen years
+        Поиск страниц с выбранной датой
+        """
 
         author_page_url = f'https://www.elibrary.ru/author_items.asp?authorid={self.author_id}'
         print("Author page URL:", author_page_url)
 
-        print("Getting author's page")
+        print("Получаем список страниц по автору")
         self.driver.get(author_page_url)
-        print("Done")
+        print("Выполнено успешно")
 
         self.driver.find_element_by_xpath('//*[@id="hdr_years"]').click()
         time.sleep(20)
@@ -105,7 +124,7 @@ class AuthorParser:
                 year = '//*[@id="year_' + str(i) + '"]'
                 element = WebDriverWait(self.driver, 1).until(EC.element_to_be_clickable((By.XPATH, year)))
                 self.driver.execute_script("arguments[0].click();", element)
-                print('Years:', i)
+                print('Года:', i)
             except TimeoutException:
                 print("Can't load the year selection")
                 print('No publications for:' + str(i) + 'year')
@@ -122,7 +141,7 @@ class AuthorParser:
             with open(self.files_dir / f"page_{page_number}.html", 'a', encoding='utf-8') as f:
                 f.write(self.driver.page_source)
 
-            print("Downloading page number", page_number)
+            print("Загрузка страницы под номером: ", page_number)
             page_number += 1
             
             try:
@@ -132,7 +151,7 @@ class AuthorParser:
                 print('No more pages left!')
 
             sleep_seconds = random.randint(5, 15)
-            print("Sleeping for", sleep_seconds, "seconds")
+            print("Ожидание", sleep_seconds, "секунд")
 
             time.sleep(sleep_seconds)
 
@@ -140,8 +159,10 @@ class AuthorParser:
     @staticmethod
     def get_title(table_cell: bs4.element.ResultSet) -> str:
         """Get publication titles from an HTML page box
+        Возвращаем названия из HTML - документа
 
         Parameters:
+        Параметры:
         -----------
         table_cell : bs4.element.ResultSet
         """
@@ -157,7 +178,9 @@ class AuthorParser:
 
     @staticmethod
     def get_authors(table_cell: bs4.element.ResultSet) -> str:
-        """Get authors from an HTML page box"""
+        """Get authors from an HTML page box
+        Возрвращаем авторов с загруженной страниц
+        """
 
         box_of_authors = table_cell.find_all('font', color="#00008f")
         if not box_of_authors:
@@ -173,7 +196,9 @@ class AuthorParser:
 
     @staticmethod
     def get_info(table_cell: bs4.element.ResultSet) -> str:
-        """Get journal info from an HTML page box"""
+        """Get journal info from an HTML page box
+        Возращаем информацию о публикации с загруженной страницы
+        """
 
         if len(table_cell) == 0:
             biblio_info = AuthorParser.missing_value
@@ -188,7 +213,9 @@ class AuthorParser:
 
     @staticmethod
     def get_link(table_cell: bs4.element.ResultSet) -> str:
-        """Get article link from an HTML page box"""
+        """Get article link from an HTML page box
+        Возвращаем артикль с загруженной странцы
+        """
 
         information_wint_links_in_box = table_cell.find_all('a')
         if not information_wint_links_in_box:
@@ -213,7 +240,9 @@ class AuthorParser:
         return table_cells
 
     def save_publications(self):
-        """Save author's publications to a csv-file"""
+        """Save author's publications to a csv-file
+        Сохраняем автором публикаций в csv - файл
+        """
 
         save_path = self.data_path / "processed" / self.author_id
         save_path.mkdir(exist_ok=True)
@@ -235,10 +264,10 @@ class AuthorParser:
     def parse_publications(self):
         """ Get trough the html file and save information from it"""
 
-        print("Parsing publications for author", self.author_id)
+        print("Поиск публикаций по автору: ", self.author_id)
 
         for file in self.files_dir.glob("*.html"):
-            print("Reading file", file.name)
+            print("Чтение файла", file.name)
 
             with open(file, "r", encoding="utf8") as f:
                 page_text = f.read()
