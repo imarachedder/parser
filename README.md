@@ -28,7 +28,7 @@ for author_id in author_ids:
     parser = AuthorParser(
         author_id=author_id,
         data_path="C://Parser/data/",
-        date_from=1984, 
+        date_from=2000, 
         date_to=2021 
     )
 
@@ -40,14 +40,14 @@ for author_id in author_ids:
 
 # Поиск общих публикаций коллектива авторов
 common_publications = find_common_publications(publications)
-print("Found", len(common_publications), "common publications")
+print("Найдено", len(common_publications), "общих публикаций")
 
 # Вывод названия и авторов общих публикаций
 for publication in common_publications:
     print(publication.title)
     print(publication.authors)
     print("-" * 20)
-    
+
 data_path = Path(data_path)
 data_path = data_path / "processed" / author_ids[0]
 visualizer = PublicationVisualizer(data_path)
@@ -57,9 +57,10 @@ visualizer.save_year_distribution("publication_years.jpeg")
 Установка
 ---------
 
-Вам потребуется Python 3.5 или более поздней версии. Вы можете иметь несколько установленных версий, это не должно вызвать проблем.
+Требуется Python 3.9 или более поздней версии.
 
-Также для корректной работы Вам подребуется установить некоторые библиотеки. Для этого можно просто указать путь до requirements.txt в консоли и ввести команду.
+Также для корректной работы подребуется установить некоторые библиотеки.
+Для этого можно просто указать путь до requirements.txt в консоли и ввести команду.
 
 ```bash
 $ pip install -r /path/to/requirements.txt
