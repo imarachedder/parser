@@ -47,7 +47,11 @@ for publication in common_publications:
     print(publication.title)
     print(publication.authors)
     print("-" * 20)
-
+    
+data_path = Path(data_path)
+data_path = data_path / "processed" / author_ids[0]
+visualizer = PublicationVisualizer(data_path)
+visualizer.save_year_distribution("publication_years.jpeg")
 ```
 
 Установка
