@@ -6,6 +6,7 @@ from elibrary_parser.types import Publication
 from elibrary_parser.utils import find_common_publications
 
 
+
 @pytest.fixture
 def publication_table_cell():
     data_test = open('../data test/page_3.html',

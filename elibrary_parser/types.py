@@ -2,51 +2,62 @@ import re
 
 
 class Publication:
-    """ Storing information about publications
-    Finds similarities between given authors
+    """
+    Хранение информации о публикациях
 
-     Attributes
-     ----------
-     title: str
-        publication title
-     authors: str
-        publication authors
-     info: str
-        publication info (journal, etc.)
-     link: str
-        link for the publication
+    Находит сходства между указанными авторами
+
+    Атрибуты
+    ----------
+        title: str
+        название публикации
+        authors: str
+        авторы публикации
+        info: str
+        информация о публикации
+        link: str
+        ссылка на публикацию
+        year: default None, else int
     """
 
-    def __init__(self, title: str, authors: str, info: str, link: str):
+    def __init__(self, title: str, authors: str, info: str, link: str, year = None):
         self.title = title
         self.authors = authors
         self.info = info
         self.link = link
-        self.year = None
+        self.year = year
     missing_value = '-'
 
     def to_csv_row(self):
-        """ Create a table row with semicolons between the elements """
+        """
+        Создание колонок с ; 
+        """
 
         return self.title + ';' + self.authors + ';' + self.info + ';' + self.link + ';' + self.year
 
     def get_year(self):
-        """ Gets a year in the range from 1900 to 2100 """
+        """ 
+        Получаем год публикации с 1900 по 2100
+        """
 
-        years = re.findall(r'20\d{2}|19\d{2}', self.info)
+        # years = re.findall(r'20\d{2}|19\d{2}', self.info)
+        years = re.findall(r'\b(19\d{2}|20\d{2})\b(?=\.)', self.title)
+
+        print("YEARS")
+        print(years)
         if years:
             self.year = years[0]
         else:
             self.year = Publication.missing_value
 
     def __eq__(self, other) -> bool:
-        """ Gets out any similar authors publications if their
-        authors, title, info, link and year are equal
+        """ 
+        Выводит любые похожие публикации авторов,
+        если их авторы, название, информация, ссылка и год совпадают
 
-        Parameters:
+        Параметры:
         -----------
-        other : Publication
-            other info to compare with
+        other : другая информация для сравнения
         """
 
         return (
@@ -58,6 +69,8 @@ class Publication:
         )
 
     def __hash__(self):
-        """ Hashes a publication"""
+        """
+        хэширование публикации
+        """
 
         return hash(self.title) ^ hash(self.authors) ^ hash(self.info) ^ hash(self.link) ^ hash(self.year)
